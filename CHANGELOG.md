@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - The Apparatus now has a random value ranging 50-140 and is immediately scannable
+- Config data for ping scan, breaker box and apparatice changes
 
 ### Changed
 - Updated to 1.0.0 of UnityMDK (which fixed the breaker box not being scannable sometimes)

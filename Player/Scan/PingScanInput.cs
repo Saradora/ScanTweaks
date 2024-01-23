@@ -31,6 +31,8 @@ public class PingScanInput : MonoBehaviour
 
     private void OnPingScan(InputAction.CallbackContext ctx)
     {
+        if (!PingScan.DoPatch) return;
+        
         PlayerControllerB player = Player.LocalPlayer;
         
         if (TryPingScan is not null)

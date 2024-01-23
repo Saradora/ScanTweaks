@@ -1,21 +1,19 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using RuntimeNetcodeRPCValidator;
+using UnityMDK.Config;
 
 namespace ScanTweaks;
 
-[BepInDependency(MyPluginInfo.PLUGIN_GUID)]
 [BepInDependency(LethalMDK.LethalMDK.ModGuid)]
 [BepInDependency(UnityMDK.UnityMDK.ModGuid)]
 [BepInPlugin(ScanTweaks.ModGuid, ScanTweaks.ModName, ScanTweaks.ModVersion)]
 public class PluginInitializer : BaseUnityPlugin
 {
     private readonly Harmony _harmonyInstance = new(ScanTweaks.ModGuid);
-    private readonly NetcodeValidator _netcodeValidator = new(ScanTweaks.ModGuid);
         
     private void Awake()
     {
+        ConfigBinder.BindAll(Config);
         _harmonyInstance.PatchAll();
-        _netcodeValidator.PatchAll();
     }
 }

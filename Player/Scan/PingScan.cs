@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using LethalMDK;
 using UnityEngine;
+using UnityMDK.Config;
 using UnityMDK.Injection;
 using UnityMDK.Reflection;
 using Object = UnityEngine.Object;
@@ -10,6 +11,10 @@ namespace ScanTweaks;
 [InjectToComponent(typeof(PingScanInput))]
 public class PingScan : MonoBehaviour
 {
+    [ConfigSection("PingScan")]
+    [ConfigDescription("Enable/Disable the ping scan tweaks")]
+    public static readonly ConfigData<bool> DoPatch = new(true);
+    
     // Parameters
     [SerializeField] private float _range = 80f;
     [SerializeField] private float _cooldown = 1.3f;

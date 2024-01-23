@@ -20,9 +20,6 @@
       <Reference Include="LethalMDK">
         <HintPath>C:\PackageReleases\Saradora-LethalMDK\Debug\LethalMDK.dll</HintPath>
       </Reference>
-      <Reference Include="NicholaScott.BepInEx.RuntimeNetcodeRPCValidator">
-        <HintPath>..\..\..\..\..\Steam\steamapps\common\Lethal Company\BepInEx\plugins\Ozone-Runtime_Netcode_Patcher\NicholaScott.BepInEx.RuntimeNetcodeRPCValidator.dll</HintPath>
-      </Reference>
       <Reference Include="Unity.InputSystem">
         <HintPath>..\..\..\..\..\..\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.InputSystem.dll</HintPath>
       </Reference>
