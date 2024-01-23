@@ -18,13 +18,22 @@
         <HintPath>..\..\..\..\..\..\Steam\steamapps\common\Lethal Company\BepInEx\core\BepInEx.dll</HintPath>
       </Reference>
       <Reference Include="LethalMDK">
-        <HintPath>C:\PackageReleases\Saradora-LethalMDK\1.0.0\LethalMDK.dll</HintPath>
+        <HintPath>C:\PackageReleases\Saradora-LethalMDK\Debug\LethalMDK.dll</HintPath>
+      </Reference>
+      <Reference Include="NicholaScott.BepInEx.RuntimeNetcodeRPCValidator">
+        <HintPath>..\..\..\..\..\Steam\steamapps\common\Lethal Company\BepInEx\plugins\Ozone-Runtime_Netcode_Patcher\NicholaScott.BepInEx.RuntimeNetcodeRPCValidator.dll</HintPath>
       </Reference>
       <Reference Include="Unity.InputSystem">
         <HintPath>..\..\..\..\..\..\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.InputSystem.dll</HintPath>
       </Reference>
+      <Reference Include="Unity.Netcode.Components">
+        <HintPath>..\..\..\..\..\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Netcode.Components.dll</HintPath>
+      </Reference>
       <Reference Include="Unity.Netcode.Runtime">
         <HintPath>..\..\..\..\..\..\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
+      </Reference>
+      <Reference Include="Unity.Networking.Transport">
+        <HintPath>..\..\..\..\..\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.Networking.Transport.dll</HintPath>
       </Reference>
       <Reference Include="Unity.TextMeshPro">
         <HintPath>..\..\..\..\..\..\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Unity.TextMeshPro.dll</HintPath>
@@ -49,6 +58,7 @@
       </Reference>
 
     </ItemGroup>
+
 
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

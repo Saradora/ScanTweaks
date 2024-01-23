@@ -3,6 +3,7 @@ using LethalMDK;
 using TMPro;
 using UnityEngine;
 using UnityMDK.Injection;
+using Object = UnityEngine.Object;
 
 namespace ScanTweaks.UI;
 
@@ -72,11 +73,8 @@ public class PingScanUI : MonoBehaviour
         List<ScanNodeProperties> toDelete = new();
         SortedList<float, RectTransform> sortedScanNodes = new();
 
-        foreach (var page in _currentScanNodes)
+        foreach ((ScanNodeProperties scanNode, RectTransform rect) in _currentScanNodes)
         {
-            RectTransform rect = page.Value;
-            ScanNodeProperties scanNode = page.Key;
-
             if (!scanNode)
             {
                 toDelete.Add(scanNode);

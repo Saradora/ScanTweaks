@@ -10,10 +10,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.1.0] - 2024-01-22
 
+### Added
+- The Apparatus now has a random value ranging 50-140 and is immediately scannable
+
 ### Changed
 - Updated to 1.0.0 of UnityMDK (which fixed the breaker box not being scannable sometimes)
 
 ### Fixed
+- Fixed being unable to scan items on the company desk
 - Fixed a pool not being correctly cleared
 - Added a few safeguards to avoid nullrefs
 

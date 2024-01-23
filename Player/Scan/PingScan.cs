@@ -3,6 +3,7 @@ using LethalMDK;
 using UnityEngine;
 using UnityMDK.Injection;
 using UnityMDK.Reflection;
+using Object = UnityEngine.Object;
 
 namespace ScanTweaks;
 
@@ -24,6 +25,7 @@ public class PingScan : MonoBehaviour
     private readonly List<Collider> _currentScannedColliders = new();
     private readonly List<ScanNodeProperties> _currentScannedNodes = new();
     private readonly List<int> _currentScannedValues = new();
+    private readonly List<GrabbableObject> _currentScannedGrabbables = new();
     private readonly Collider[] _hitAlloc = new Collider[30];
     private static readonly int _physicsMask = LayerMasks.Room | LayerMasks.InteractableObject;
     
@@ -46,7 +48,7 @@ public class PingScan : MonoBehaviour
 
     private void Update()
     {
-        PlayerControllerB player = LethalMDK.Player.LocalPlayer;
+        PlayerControllerB player = Player.LocalPlayer;
         if (!player) return;
         if (player.inSpecialInteractAnimation && _currentScannedNodes.Count > 0)
         {
@@ -60,8 +62,16 @@ public class PingScan : MonoBehaviour
         {
             ScanNodeProperties scanNode = _currentScannedNodes[scanIndex];
             Collider collider = _currentScannedColliders[scanIndex];
+            GrabbableObject grabbableObject = _currentScannedGrabbables[scanIndex];
+
+            if (grabbableObject && grabbableObject.isHeld && !grabbableObject.isHeldByEnemy)
+            {
+                RemoveScanNodeAt(scanIndex);
+                continue;
+            }
             
-            if (!IsNodeVisible(scanNode, collider, player.gameplayCamera, paddingX, paddingY)) RemoveScanNodeAt(scanIndex);
+            if (!IsNodeVisible(scanNode, collider, player.gameplayCamera, paddingX, paddingY)) 
+                RemoveScanNodeAt(scanIndex);
         }
     }
 
@@ -168,6 +178,9 @@ public class PingScan : MonoBehaviour
         if (!scanNodeProperties) return;
         if (_currentScannedNodes.Contains(scanNodeProperties)) return;
 
+        GrabbableObject grabbableObject = scanNodeProperties.GetComponentInParent<GrabbableObject>();
+        if (grabbableObject && grabbableObject.isHeld && !grabbableObject.isHeldByEnemy) return;
+
         //Log.Print($"Scanned {scanNodeProperties.headerText}, type {scanNodeProperties.nodeType}");
 
         Collider coll = scanNodeProperties.GetComponent<Collider>();
@@ -178,6 +191,7 @@ public class PingScan : MonoBehaviour
         _currentScannedValues.Add(scanNodeProperties.nodeType == NodeScrap ? scanNodeProperties.scrapValue : 0);
         _currentScannedColliders.Add(coll);
         _currentScannedNodes.Add(scanNodeProperties);
+        _currentScannedGrabbables.Add(grabbableObject);
         
         CalculateTotalValue();
         
@@ -196,6 +210,7 @@ public class PingScan : MonoBehaviour
         ScanNodeRemoved?.Invoke(_currentScannedNodes[index]);
         _currentScannedColliders.RemoveAt(index);
         _currentScannedNodes.RemoveAt(index);
+        _currentScannedGrabbables.RemoveAt(index);
     }
 
     private void CalculateTotalValue()

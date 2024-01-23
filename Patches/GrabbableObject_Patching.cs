@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using LethalMDK;
 using ScanTweaks.World;
 using UnityEngine;
 
@@ -11,10 +12,30 @@ internal static class GrabbableObject_Patching
     [HarmonyPostfix]
     private static void Start_PostFix(GrabbableObject __instance)
     {
-        if (!__instance.radarIcon) return;
+        PatchRadarIcon(__instance);
+        PatchPropColliders(__instance);
+    }
+
+    private static void PatchRadarIcon(GrabbableObject grabbableObject)
+    {
+        if (!grabbableObject.radarIcon) return;
         
-        RadarIcons.AddRadarIcon(__instance, __instance.radarIcon.GetComponent<MeshRenderer>());
-        __instance.radarIcon.transform.SetParent(StartOfRound.Instance.transform);
-        __instance.radarIcon = null;
+        RadarIcons.AddRadarIcon(grabbableObject, grabbableObject.radarIcon.GetComponent<MeshRenderer>());
+        grabbableObject.radarIcon.transform.SetParent(StartOfRound.Instance.transform);
+        grabbableObject.radarIcon = null;
+    }
+
+    private static void PatchPropColliders(GrabbableObject grabbableObject)
+    {
+        List<Collider> newPropColliders = new();
+        foreach (var propCollider in grabbableObject.propColliders)
+        {
+            if (propCollider.gameObject.layer != Layers.ScanNode)
+            {
+                newPropColliders.Add(propCollider);
+            }
+        }
+
+        grabbableObject.propColliders = newPropColliders.ToArray();
     }
 }
