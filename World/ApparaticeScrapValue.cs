@@ -8,7 +8,7 @@ namespace ScanTweaks.World;
 public class ApparaticeScrapValue : MonoBehaviour
 {
     [ConfigSection("Apparatice")]
-    [ConfigDescription("Make the apparatice have a random scrap value, also fixes the \"???\" on the scan node")]
+    [ConfigDescription("Make the apparatice have a random scrap value, also fixes the \"???\" on the scan node, Host-only")]
     public static ConfigData<bool> MakeRandomValue { get; } = new(true);
     
     [ConfigDescription("Minimum possible scrap value of the apparatice. This value has a x0.4 multiplier in patch 47")]
