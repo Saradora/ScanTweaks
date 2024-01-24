@@ -4,11 +4,10 @@ using UnityEngine;
 using UnityMDK.Config;
 using UnityMDK.Injection;
 using UnityMDK.Reflection;
-using Object = UnityEngine.Object;
 
 namespace ScanTweaks;
 
-[InjectToComponent(typeof(PingScanInput))]
+[InjectToComponent(typeof(IngamePlayerSettings))]
 public class PingScan : MonoBehaviour
 {
     [ConfigSection("PingScan")]
@@ -17,16 +16,10 @@ public class PingScan : MonoBehaviour
     
     // Parameters
     [SerializeField] private float _range = 80f;
-    [SerializeField] private float _cooldown = 1.3f;
     [SerializeField] private float _outOfFrustumPaddingHorizontal = 0.2f;
     private float _outOfFrustumPaddingVertical => _outOfFrustumPaddingHorizontal * (Screen.width / (float)Screen.height);
-    
-    // Dependencies
-    private PingScanInput _pingScanInput;
-    private Terminal _terminal;
 
     // Private members
-    private float _cooldownFinishedTime = 0f;
     private readonly List<Collider> _currentScannedColliders = new();
     private readonly List<ScanNodeProperties> _currentScannedNodes = new();
     private readonly List<int> _currentScannedValues = new();
@@ -45,10 +38,11 @@ public class PingScan : MonoBehaviour
     public static event Action<ScanNodeProperties> ScanNodeAdded;
     public static event Action<ScanNodeProperties> ScanNodeRemoved;
     
-    private void Awake()
+    public static event Action DoPing;
+
+    internal static void TriggerPingScan()
     {
-        _pingScanInput = GetComponent<PingScanInput>();
-        _terminal = FindObjectOfType<Terminal>();
+        DoPing?.Invoke();
     }
 
     private void Update()
@@ -82,14 +76,12 @@ public class PingScan : MonoBehaviour
 
     private void OnEnable()
     {
-        _pingScanInput.TryPingScan += OnTryPingScan;
-        _pingScanInput.DoPingScan += OnDoPingScan;
+        DoPing += OnPingScan;
     }
 
     private void OnDisable()
     {
-        _pingScanInput.TryPingScan -= OnTryPingScan;
-        _pingScanInput.DoPingScan -= OnDoPingScan;
+        DoPing -= OnPingScan;
         RemoveAll();
     }
 
@@ -101,18 +93,8 @@ public class PingScan : MonoBehaviour
         }
     }
 
-    private bool OnTryPingScan(PlayerControllerB playerControllerB)
+    private void OnPingScan()
     {
-        if (playerControllerB == null) return false;
-        if (Time.time < _cooldownFinishedTime) return false;
-        if (playerControllerB.inSpecialInteractAnimation) return false;
-        return !playerControllerB.isPlayerDead;
-    }
-
-    private void OnDoPingScan()
-    {
-        _cooldownFinishedTime = Time.time + _cooldown;
-
         Camera camera = Player.LocalPlayer.gameplayCamera;
         Transform cameraTransform = camera.transform;
         Vector3 camPos = cameraTransform.position;

@@ -51,7 +51,7 @@
         <HintPath>..\..\..\..\..\..\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
       </Reference>
       <Reference Include="UnityMDK">
-        <HintPath>C:\PackageReleases\Saradora-UnityMDK\1.0.0\UnityMDK.dll</HintPath>
+        <HintPath>C:\PackageReleases\Saradora-UnityMDK\Debug\UnityMDK.dll</HintPath>
       </Reference>
 
     </ItemGroup>

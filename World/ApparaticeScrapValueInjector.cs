@@ -1,9 +1,4 @@
-﻿using Unity.Netcode;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityMDK.Injection;
-using UnityMDK.Logging;
-using NetworkPrefabs = LethalMDK.Network.NetworkPrefabs;
+﻿using UnityMDK.Injection;
 
 namespace ScanTweaks.World;
 
