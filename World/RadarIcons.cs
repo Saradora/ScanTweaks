@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityMDK.Config;
 using UnityMDK.Injection;
 
 namespace ScanTweaks.World;
@@ -6,6 +7,9 @@ namespace ScanTweaks.World;
 [InjectToComponent(typeof(StartOfRound))]
 public class RadarIcons : MonoBehaviour
 {
+    [ConfigSection("Radar"), ConfigDescription("Fixes the item radar so that item icons properly disappear when the item itself is destroyed (e.g. when a player is eaten).")]
+    public static readonly ConfigData<bool> PatchRadarIcons = new(true);
+    
     private static List<(GrabbableObject, MeshRenderer)> _radarIconList = new();
 
     private static readonly Vector3 Offset = Vector3.up * 0.5f;

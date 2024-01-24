@@ -12,8 +12,11 @@ internal static class GrabbableObject_Patching
     [HarmonyPostfix]
     private static void Start_PostFix(GrabbableObject __instance)
     {
-        PatchRadarIcon(__instance);
-        PatchPropColliders(__instance);
+        if (RadarIcons.PatchRadarIcons)
+        {
+            PatchRadarIcon(__instance);
+        }
+        PatchPropColliders(__instance); // todo add config for this?
     }
 
     private static void PatchRadarIcon(GrabbableObject grabbableObject)

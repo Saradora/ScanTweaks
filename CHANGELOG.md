@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.2.0] - 2024-01-24
+
+### Added
+- ConfigEntry for the radar patch
+
+### Changed
+- Reworked input listening for improved compatibility with other scan mods
+
 ## [1.1.0] - 2024-01-22
 
 ### Added
