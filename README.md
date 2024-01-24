@@ -20,6 +20,9 @@ All features can be toggled in the config file
 
 ## Compatibility
 
-Unlikely to be compatible with mods that change the player scanner.
+Tested compatible with: 
+- HDLethalCompany
+- ShipLoot
+- HoldScanButton
 
-Tested compatible with HDLethalCompany
+Unlikely to be compatible with mods that change the player scanner.
