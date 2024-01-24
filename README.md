@@ -16,7 +16,8 @@ All features can be toggled in the config file
 
 ### Host only features
 
-- Fixed the Apparatice price not being set properly and "???" being displayed
+- Fixed the Apparatice price not being set properly (by default ranges from $50 to $140).
+- Fixed the Apparatice displaying "???" instead of its price.
 
 ## Compatibility
 
