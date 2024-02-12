@@ -59,6 +59,8 @@ public class PingScanUI : MonoBehaviour
         if (!player) return;
 
         Camera cam = player.gameplayCamera;
+
+        #region Screen ratio fix - Code from HDLethalCompany
         float defaultWidth = 860f;
         float multiplier = cam.targetTexture.width / defaultWidth;
 
@@ -69,6 +71,7 @@ public class PingScanUI : MonoBehaviour
         }
 
         Vector3 localScale = multiplier <= 3f ? new Vector3(multiplier, multiplier, multiplier) : new Vector3(3f, 3f, 3f);
+        #endregion
 
         List<ScanNodeProperties> toDelete = new();
         SortedList<float, RectTransform> sortedScanNodes = new();
@@ -111,7 +114,7 @@ public class PingScanUI : MonoBehaviour
 
         _nextCounterUpdate = Time.time + _counterInterval;
 
-        if (!_hudManager.scanInfoAnimator.GetBool(ADisplayBool))
+        if (_hudManager.scanInfoAnimator.GetBool(ADisplayBool) is false)
         {
             _hudManager.scanInfoAnimator.SetBool(ADisplayBool, true);
         }
