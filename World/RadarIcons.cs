@@ -20,14 +20,14 @@ public class RadarIcons : MonoBehaviour
         {
             (GrabbableObject grabbable, MeshRenderer radarIcon) = _radarIconList[iconIndex];
 
-            if (!grabbable)
+            if (grabbable == null)
             {
-                Destroy(radarIcon.gameObject);
+                if (radarIcon) Destroy(radarIcon.gameObject);
                 _radarIconList.RemoveAt(iconIndex);
                 continue;
             }
             
-            if (!radarIcon)
+            if (radarIcon == null)
             {
                 _radarIconList.RemoveAt(iconIndex);
                 continue;

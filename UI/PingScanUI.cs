@@ -25,6 +25,8 @@ public class PingScanUI : MonoBehaviour
 
     private int _currentScrapValue;
 
+    private readonly SortedList<float, List<RectTransform>> _sortedScanNodes = new();
+
     private void Awake()
     {
         _hudManager = GetComponent<HUDManager>();
@@ -74,7 +76,8 @@ public class PingScanUI : MonoBehaviour
         #endregion
 
         List<ScanNodeProperties> toDelete = new();
-        SortedList<float, RectTransform> sortedScanNodes = new();
+        var sortedScanNodes = _sortedScanNodes;
+        _sortedScanNodes.Clear();
 
         foreach ((ScanNodeProperties scanNode, RectTransform rect) in _currentScanNodes)
         {
@@ -85,7 +88,11 @@ public class PingScanUI : MonoBehaviour
             }
 
             Vector3 scanNodePosition = scanNode.transform.position;
-            sortedScanNodes.Add(Vector3.SqrMagnitude(scanNodePosition - cam.transform.position), rect);
+            float distance = Vector3.SqrMagnitude(scanNodePosition - cam.transform.position);
+            
+            if (!sortedScanNodes.ContainsKey(distance)) sortedScanNodes.Add(distance, new List<RectTransform>());
+            
+            sortedScanNodes[distance].Add(rect);
 
             Vector3 position = cam.WorldToScreenPoint(scanNodePosition);
             Vector3 rectPosition = rect.position;
@@ -102,7 +109,10 @@ public class PingScanUI : MonoBehaviour
 
         foreach (var sortedScanNode in sortedScanNodes)
         {
-            sortedScanNode.Value.SetAsFirstSibling();
+            foreach (var trans in sortedScanNode.Value)
+            {
+                trans.SetAsFirstSibling();
+            }
         }
     }
 

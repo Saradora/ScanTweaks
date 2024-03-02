@@ -17,3 +17,10 @@ public class PluginInitializer : BaseUnityPlugin
         _harmonyInstance.PatchAll();
     }
 }
+
+public static class ScanTweaks
+{
+    public const string ModGuid = "Saradora.ScanTweaks";
+    public const string ModVersion = "1.2.1";
+    public const string ModName = "Scan Tweaks";
+}

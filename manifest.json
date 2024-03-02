@@ -1,11 +1,11 @@
 {
 	"name": "ScanTweaks",
 	"author": "Saradora",
-	"version_number": "1.2.0",
+	"version_number": "1.2.1",
 	"website_url": "https://github.com/Saradora/ScanTweaks",
 	"description": "A few tweaks to the ping scan and the terminal radar.",
 	"dependencies": [
-		"Saradora-UnityMDK-1.1.0",
-		"Saradora-LethalMDK-1.0.1"
+		"Saradora-UnityMDK-1.1.1",
+		"Saradora-LethalMDK-1.1.0"
 	]
 }

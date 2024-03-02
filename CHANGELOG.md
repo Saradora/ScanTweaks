@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.2.1] - 2024-03-02
+
+### Fixed
+- Fixed a bug if two scanned items were at the exact same distance from the player
+- Fixed a bug where the radar icons kept sending error messages to the console.
+
 ## [1.2.0] - 2024-01-24
 
 ### Added
