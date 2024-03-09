@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.2.2] - 2024-03-09
+
+Re-released because the build seemed corrupted
+
 ## [1.2.1] - 2024-03-02
 
 ### Fixed
