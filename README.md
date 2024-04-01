@@ -2,11 +2,13 @@
 
 My first ever mod for Lethal Company!
 
-Intended mostly for me to learn a bit about modding c:
+At first mostly intended for me to learn a bit about modding c:
 
-Don't hesitate to DM me on discord - saradora - if you have any issues :), most features were only tested on LAN.
+Don't hesitate to DM me on discord - saradora - if you have any issues :).
 
 ## Features
+
+![](https://github.com/Saradora/ScanTweaks/blob/main/Media/ScanTweak.gif)
 
 All features can be toggled in the config file
 
@@ -15,6 +17,7 @@ All features can be toggled in the config file
 - Added a scan node on the breaker box.
 
 ### Host only features
+These features will work if the host has the mod, the other clients do not need the mod
 
 - Fixed the Apparatice price not being set properly (by default ranges from $50 to $140).
 - Fixed the Apparatice displaying "???" instead of its price.
