@@ -1,4 +1,5 @@
-﻿using GameNetcodeStuff;
+﻿using System.Collections;
+using GameNetcodeStuff;
 using LethalMDK;
 using UnityEngine;
 using UnityMDK.Config;
@@ -12,7 +13,10 @@ public class PingScan : MonoBehaviour
 {
     [ConfigSection("PingScan")]
     [ConfigDescription("Enable/Disable the ping scan tweaks")]
-    public static readonly ConfigData<bool> DoPatch = new(true);
+    public static readonly ConfigData<bool> PingScanDoPatch = new(true);
+
+    [ConfigDescription("The delay between each ping scan step. A larger value will make the scan take longer to reach great distances.")]
+    private static readonly ConfigData<float> PingScanStepDuration = new(0.015f);
     
     // Parameters
     [SerializeField] private float _range = 80f;
@@ -96,21 +100,58 @@ public class PingScan : MonoBehaviour
     private void OnPingScan()
     {
         Camera camera = Player.LocalPlayer.gameplayCamera;
-        Transform cameraTransform = camera.transform;
-        Vector3 camPos = cameraTransform.position;
-        Vector3 camFwd = cameraTransform.forward;
+        StartCoroutine(Pinging(camera));
+    }
 
-        float radius = _range * 0.5f;
-        int hitCount = Physics.OverlapSphereNonAlloc(camPos + (camFwd * radius), radius, _hitAlloc, LayerMasks.ScanNode, QueryTriggerInteraction.Ignore);
+    private IEnumerator Pinging(Camera camera)
+    {
+        var cameraTransform = camera.transform;
+        Vector3 currentTestPos = cameraTransform.position;
+        Vector3 direction = cameraTransform.forward;
+        Quaternion boxOrientation = Quaternion.LookRotation(direction);
+        Vector3 screenPos = Vector3.one;
+        Vector3 extents = Vector3.one;
 
-        for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
+        const float stepLength = 0.5f;
+        float currentLength = 0f;
+        float nextStep = Time.time;
+
+        while (currentLength < _range)
         {
-            Collider hitCollider = _hitAlloc[hitIndex];
-            if (!hitCollider.TryGetComponent(out ScanNodeProperties scanNode)) continue;
+            yield return null;
+
+            while (Time.time >= nextStep)
+            {
+                UpdateExtents();
+                DoPing();
+                
+                currentTestPos += direction * stepLength;
+                currentLength += stepLength;
+                nextStep += PingScanStepDuration;
+            }
+        }
+
+        void UpdateExtents()
+        {
+            screenPos.z = currentLength;
+            Vector3 localSize = camera.transform.InverseTransformPoint(camera.ViewportToWorldPoint(screenPos));
+            extents = localSize;
+            extents.z = stepLength * 0.5f;
+        }
+
+        void DoPing()
+        {
+            int hitCount = Physics.OverlapBoxNonAlloc(currentTestPos, extents, _hitAlloc, boxOrientation, LayerMasks.ScanNode, QueryTriggerInteraction.Ignore);
+
+            for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
+            {
+                Collider hitCollider = _hitAlloc[hitIndex];
+                if (!hitCollider.TryGetComponent(out ScanNodeProperties scanNode)) continue;
             
-            if (!IsNodeVisible(scanNode, hitCollider, camera, 0f, 0f)) continue;
+                if (!IsNodeVisible(scanNode, hitCollider, camera, 0f, 0f)) continue;
             
-            AddScanNode(scanNode);
+                AddScanNode(scanNode);
+            }
         }
     }
 
@@ -121,8 +162,8 @@ public class PingScan : MonoBehaviour
 
     private static bool IsNodeVisible(ScanNodeProperties scanNode, Collider nodeCollider, Camera camera, float paddingX, float paddingY)
     {
-        if (scanNode == false) return false;
-        if (nodeCollider == false) return false;
+        if (scanNode == null) return false;
+        if (nodeCollider == null) return false;
         
         Vector3 camPos = camera.transform.position;
         float distanceToCam = (camPos - nodeCollider.bounds.center).magnitude;
@@ -138,6 +179,15 @@ public class PingScan : MonoBehaviour
 
     private static bool Linecast(Vector3 start, Vector3 end, int layerMask)
     {
+        Vector3 line = end - start;
+        if (Math.Abs(line.y) > 0.1f)
+        {
+            if (line.y > 0)
+                end -= Vector3.up * 0.1f;
+            else
+                end += Vector3.up * 0.1f;
+        }
+
         bool hit = Physics.Linecast(start, end, out RaycastHit hitInfo, layerMask, QueryTriggerInteraction.Ignore);
 
         if (!hit) return false;

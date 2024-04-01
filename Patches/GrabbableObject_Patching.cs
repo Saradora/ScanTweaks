@@ -12,7 +12,7 @@ internal static class GrabbableObject_Patching
     [HarmonyPostfix]
     private static void Start_PostFix(GrabbableObject __instance)
     {
-        if (RadarIcons.PatchRadarIcons)
+        if (RadarIcons.RadarPatchRadarIcons)
         {
             PatchRadarIcon(__instance);
         }

@@ -9,7 +9,7 @@ public class ApparatusScrapValueInjector : ComponentInjector<LungProp>
     [Initializer]
     private static void Init()
     {
-        if (!ApparaticeScrapValue.MakeRandomValue) return;
+        if (!ApparaticeScrapValue.ApparaticeMakeRandomValue) return;
         SceneInjection.AddComponentInjector(new ApparatusScrapValueInjector(), true);
     }
     

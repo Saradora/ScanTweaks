@@ -3,7 +3,6 @@ using LethalMDK;
 using TMPro;
 using UnityEngine;
 using UnityMDK.Injection;
-using Object = UnityEngine.Object;
 
 namespace ScanTweaks.UI;
 
@@ -15,6 +14,10 @@ public class PingScanUI : MonoBehaviour
     private float _nextCounterUpdate;
     
     private HUDManager _hudManager;
+
+    private Canvas _canvas;
+    private RectTransform _canvasTransform;
+    private RectTransform _nodeContainer;
 
     private Queue<RectTransform> _uiElementsPool = new();
 
@@ -30,6 +33,10 @@ public class PingScanUI : MonoBehaviour
     private void Awake()
     {
         _hudManager = GetComponent<HUDManager>();
+
+        _canvas = _hudManager.scanElements[0].GetComponentInParent<Canvas>(true);
+        _canvasTransform = (RectTransform)_canvas.transform;
+        _nodeContainer = (RectTransform)_hudManager.scanElements[0].parent.transform;
 
         for (int i = 1; i < _hudManager.scanElements.Length; i++)
         {
@@ -51,8 +58,15 @@ public class PingScanUI : MonoBehaviour
 
     private void Update()
     {
+        UpdateNodeContainer();
         UpdateScanUIPositions();
         UpdateScrapValueCounter();
+    }
+
+    private void UpdateNodeContainer()
+    {
+        _nodeContainer.sizeDelta = Vector2.zero;
+        _nodeContainer.localPosition = Vector3.zero;
     }
 
     private void UpdateScanUIPositions()
@@ -62,22 +76,11 @@ public class PingScanUI : MonoBehaviour
 
         Camera cam = player.gameplayCamera;
 
-        #region Screen ratio fix - Code from HDLethalCompany
-        float defaultWidth = 860f;
-        float multiplier = cam.targetTexture.width / defaultWidth;
-
-        float anchorOffsetZ = 0.123f * multiplier + 0.877f;
-        if (anchorOffsetZ > 1.238f)
-        {
-            anchorOffsetZ = 1.238f;
-        }
-
-        Vector3 localScale = multiplier <= 3f ? new Vector3(multiplier, multiplier, multiplier) : new Vector3(3f, 3f, 3f);
-        #endregion
-
         List<ScanNodeProperties> toDelete = new();
         var sortedScanNodes = _sortedScanNodes;
         _sortedScanNodes.Clear();
+
+        var canvasSize = _canvasTransform.sizeDelta;
 
         foreach ((ScanNodeProperties scanNode, RectTransform rect) in _currentScanNodes)
         {
@@ -94,12 +97,9 @@ public class PingScanUI : MonoBehaviour
             
             sortedScanNodes[distance].Add(rect);
 
-            Vector3 position = cam.WorldToScreenPoint(scanNodePosition);
-            Vector3 rectPosition = rect.position;
-            rectPosition.z = 12.17f * anchorOffsetZ;
-            rect.position = rectPosition;
-            rect.anchoredPosition = new Vector2(position.x - 439.48f * multiplier, position.y - 244.8f * multiplier);
-            rect.localScale = localScale;
+            Vector3 pos = cam.WorldToViewportPoint(scanNodePosition);
+            pos = ((Vector2)pos - Vector2.one * 0.5f) * canvasSize;
+            rect.localPosition = pos;
         }
 
         foreach (var scanNode in toDelete)
@@ -109,9 +109,9 @@ public class PingScanUI : MonoBehaviour
 
         foreach (var sortedScanNode in sortedScanNodes)
         {
-            foreach (var trans in sortedScanNode.Value)
+            foreach (var uiNode in sortedScanNode.Value)
             {
-                trans.SetAsFirstSibling();
+                uiNode.SetAsFirstSibling();
             }
         }
     }

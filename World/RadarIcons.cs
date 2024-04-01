@@ -8,7 +8,7 @@ namespace ScanTweaks.World;
 public class RadarIcons : MonoBehaviour
 {
     [ConfigSection("Radar"), ConfigDescription("Fixes the item radar so that item icons properly disappear when the item itself is destroyed (e.g. when a player is eaten).")]
-    public static readonly ConfigData<bool> PatchRadarIcons = new(true);
+    public static readonly ConfigData<bool> RadarPatchRadarIcons = new(true);
     
     private static List<(GrabbableObject, MeshRenderer)> _radarIconList = new();
 

@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.3.0] - 2024-04-01
+
+### Added
+- Added an offset to item detection for better scanning of objects close to the ground
+- Made the scan progress over time
+- Made the scan pick up even more items at the same time
+
+### Changed
+- Improved UI code, scan nodes should now always appear correctly
+
 ## [1.2.2] - 2024-03-09
 
 Re-released because the build seemed corrupted
