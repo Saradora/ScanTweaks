@@ -1,12 +1,13 @@
-﻿using LethalMDK.World;
+﻿using LethalMDK;
+using LethalMDK.World;
 using UnityEngine;
 using UnityMDK.Config;
 using UnityMDK.Injection;
 
 namespace ScanTweaks.World;
 
-[Initializer]
-public static class BreakerBoxScanNode
+[InjectToComponent(typeof(BreakerBox))]
+public class BreakerBoxScanNode : MonoBehaviour
 {
     [ConfigSection("BreakerBox")] 
     [ConfigDescription("Adds a scan node to the breaker box")]
@@ -20,10 +21,67 @@ public static class BreakerBoxScanNode
 
     private static readonly Vector3 Offset = new(-1f, -0.8f, -1.2f);
     
-    [Initializer]
-    private static void Initialize()
+    private ScanNodeProperties _scanNode;
+
+    private void Start()
     {
-        if (!_breakerBoxScanNode) return;
-        ScanNodes.AddScanNode<BreakerBox>(ScanNodes.EType.Utility, "Breaker Box", "Flip the switches! Maybe it'll do something?", _breakerBoxMinRange, _breakerBoxMaxRange, Offset);
+        _breakerBoxScanNode.ConfigChanged += OnNodeActiveStateChanged;
+        _breakerBoxMinRange.ConfigChanged += OnMinRangeChanged;
+        _breakerBoxMaxRange.ConfigChanged += OnMaxRangeChanged;
+        
+        _scanNode = GetComponentInChildren<ScanNodeProperties>(true);
+        
+        if (!_scanNode)
+        {
+            GameObject scanNodeObject = new("Scan Node") { layer = Layers.ScanNode };
+
+            _scanNode = scanNodeObject.AddComponent<ScanNodeProperties>();
+            _scanNode.headerText = "Breaker Box";
+            _scanNode.subText = "Flip the switches! Maybe it'll do something?";
+            _scanNode.minRange = _breakerBoxMinRange;
+            _scanNode.maxRange = _breakerBoxMaxRange;
+            _scanNode.creatureScanID = -1;
+            _scanNode.nodeType = (int)ScanNodes.EType.Utility;
+            _scanNode.requiresLineOfSight = true;
+
+            BoxCollider collider = scanNodeObject.AddComponent<BoxCollider>();
+            collider.size = Vector3.one * 0.2f;
+        
+            scanNodeObject.transform.SetParent(transform);
+            scanNodeObject.transform.SetLocalPositionAndRotation(Offset, Quaternion.identity);
+        }
+
+        _scanNode.enabled = _breakerBoxScanNode;
+    }
+
+    private void OnNodeActiveStateChanged(bool value)
+    {
+        if (!_scanNode)
+            return;
+
+        _scanNode.enabled = value;
+    }
+
+    private void OnMinRangeChanged(int value)
+    {
+        if (!_scanNode)
+            return;
+
+        _scanNode.minRange = value;
+    }
+
+    private void OnMaxRangeChanged(int value)
+    {
+        if (!_scanNode)
+            return;
+
+        _scanNode.maxRange = value;
+    }
+
+    private void OnDestroy()
+    {
+        _breakerBoxScanNode.ConfigChanged -= OnNodeActiveStateChanged;
+        _breakerBoxMinRange.ConfigChanged -= OnMinRangeChanged;
+        _breakerBoxMaxRange.ConfigChanged -= OnMaxRangeChanged;
     }
 }

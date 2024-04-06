@@ -163,6 +163,11 @@ public class PingScan : MonoBehaviour
     private static bool IsNodeVisible(ScanNodeProperties scanNode, Collider nodeCollider, Camera camera, float paddingX, float paddingY)
     {
         if (scanNode == null) return false;
+        if (scanNode.enabled == false) return false;
+        if (scanNode is DisableableScanNodeProperties prop)
+        {
+            if (!DisableableScanNodeProperties.EnableScanNodeForTools) return false;
+        }
         if (nodeCollider == null) return false;
         
         Vector3 camPos = camera.transform.position;

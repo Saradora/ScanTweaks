@@ -8,7 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
-## [1.3.1] - 2024-04-06
+## [1.4.0] - 2024-04-06
+
+### Added
+- Added Scan node for all items that didn't previously have one (can be disabled in config)
+- Config to toggle scrap visibility inside the ship on the monitor radar
+
+### Changed
+- Breaker Box config should now reflect changes immediately
 
 ### Fixed
 - Dead bodies shouldn't appear as scrap anymore in the monitor radar
