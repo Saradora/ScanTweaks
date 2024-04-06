@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.3.1] - 2024-04-06
+
+### Fixed
+- Dead bodies shouldn't appear as scrap anymore in the monitor radar
+
 ## [1.3.0] - 2024-04-01
 
 ### Added

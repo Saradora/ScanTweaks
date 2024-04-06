@@ -8,7 +8,7 @@ Don't hesitate to DM me on discord - saradora - if you have any issues :).
 
 ## Features
 
-![](https://github.com/Saradora/ScanTweaks/blob/main/Media/ScanTweak.gif)
+![](https://i.imgur.com/qIXTM41.gif)
 
 All features can be toggled in the config file
 

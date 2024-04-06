@@ -21,7 +21,7 @@ internal static class GrabbableObject_Patching
 
     private static void PatchRadarIcon(GrabbableObject grabbableObject)
     {
-        if (!grabbableObject.radarIcon) return;
+        if (!grabbableObject.radarIcon || grabbableObject is RagdollGrabbableObject) return;
         
         RadarIcons.AddRadarIcon(grabbableObject, grabbableObject.radarIcon.GetComponent<MeshRenderer>());
         grabbableObject.radarIcon.transform.SetParent(StartOfRound.Instance.transform);
