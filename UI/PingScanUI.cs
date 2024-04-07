@@ -1,9 +1,11 @@
-﻿using GameNetcodeStuff;
+﻿using System.Diagnostics;
+using GameNetcodeStuff;
 using LethalMDK;
 using TMPro;
 using UnityEngine;
 using UnityMDK.Config;
 using UnityMDK.Injection;
+using UnityMDK.Logging;
 
 namespace ScanTweaks.UI;
 
@@ -33,8 +35,30 @@ public class PingScanUI : MonoBehaviour
 
     private int _currentScrapValue;
 
-    private readonly SortedList<float, List<UIElement>> _sortedScanNodes = new();
+    private readonly List<ScannedObject> _scannedObjects = new();
     private readonly List<ScanNodeProperties> _toDelete = new();
+
+    private struct ScannedObject
+    {
+        public float distance;
+        public UIElement element;
+
+        public ScannedObject(float distance, UIElement element)
+        {
+            this.distance = distance;
+            this.element = element;
+        }
+    }
+
+    private struct Comparer : IComparer<ScannedObject>
+    {
+        public int Compare(ScannedObject x, ScannedObject y)
+        {
+            if (x.distance > y.distance)
+                return -1;
+            return 1;
+        }
+    }
 
     private struct UIElement
     {
@@ -82,7 +106,7 @@ public class PingScanUI : MonoBehaviour
     private void LateUpdate()
     {
         UpdateNodeContainer();
-        UpdateScanUIPositions();
+        UpdateScanNodes();
         UpdateScrapValueCounter();
     }
 
@@ -92,17 +116,20 @@ public class PingScanUI : MonoBehaviour
         _nodeContainer.localPosition = Vector3.zero;
     }
 
-    private void UpdateScanUIPositions()
+    private void UpdateScanNodes()
     {
         PlayerControllerB player = Player.LocalPlayer;
         if (!player) return;
 
         Camera cam = player.gameplayCamera;
+        Vector3 camPos = cam.transform.position;
 
         _toDelete.Clear();
-        _sortedScanNodes.Clear();
+        _scannedObjects.Clear();
 
         var canvasSize = _canvasTransform.sizeDelta;
+
+        Vector2 halfOne = Vector2.one * 0.5f;
 
         foreach ((ScanNodeProperties scanNode, UIElement element) in _currentScanNodes)
         {
@@ -116,30 +143,25 @@ public class PingScanUI : MonoBehaviour
             element.subText.text = scanNode.subText;
 
             Vector3 scanNodePosition = scanNode.transform.position;
-            float distance = Vector3.SqrMagnitude(scanNodePosition - cam.transform.position);
+            float distance = Vector3.SqrMagnitude(scanNodePosition - camPos);
             
-            if (!_sortedScanNodes.ContainsKey(distance)) _sortedScanNodes.Add(distance, new List<UIElement>());
-            
-            _sortedScanNodes[distance].Add(element);
+            _scannedObjects.Add(new(distance, element));
 
             Vector3 pos = cam.WorldToViewportPoint(scanNodePosition);
-            pos = ((Vector2)pos - Vector2.one * 0.5f) * canvasSize;
+            pos = ((Vector2)pos - halfOne) * canvasSize;
             element.transform.localPosition = pos;
         }
+        _scannedObjects.Sort(new Comparer());
 
         foreach (var scanNode in _toDelete)
         {
             OnScanNodeRemoved(scanNode);
         }
 
-        int index = 0;
-        foreach (var sortedScanNode in _sortedScanNodes.Reverse())
+        int count = _scannedObjects.Count;
+        for (int sortedIndex = 0; sortedIndex < count; sortedIndex++)
         {
-            foreach (var uiNode in sortedScanNode.Value)
-            {
-                uiNode.transform.SetSiblingIndex(index);
-                index++;
-            }
+            _scannedObjects[sortedIndex].element.transform.SetSiblingIndex(sortedIndex);
         }
     }
 

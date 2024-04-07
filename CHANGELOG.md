@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 - Some performance improvements
+- Fixed small scan node UI latency
 
 ## [1.4.0] - 2024-04-06
 
