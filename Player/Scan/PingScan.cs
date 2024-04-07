@@ -16,7 +16,7 @@ public class PingScan : MonoBehaviour
     public static readonly ConfigData<bool> PingScanDoPatch = new(true);
 
     [ConfigDescription("The delay between each ping scan step. A larger value will make the scan take longer to reach great distances.")]
-    private static readonly ConfigData<float> PingScanStepDuration = new(0.015f);
+    private static readonly ConfigData<float> PingScanStepDuration = new(0.01f);
     
     // Parameters
     [SerializeField] private float _range = 80f;
@@ -164,9 +164,9 @@ public class PingScan : MonoBehaviour
     {
         if (scanNode == null) return false;
         if (scanNode.enabled == false) return false;
-        if (scanNode is DisableableScanNodeProperties prop)
+        if (scanNode is CustomScanNodeProperties prop)
         {
-            if (!DisableableScanNodeProperties.EnableScanNodeForTools) return false;
+            if (!CustomScanNodeProperties.EnableScanNodeForTools) return false;
         }
         if (nodeCollider == null) return false;
         

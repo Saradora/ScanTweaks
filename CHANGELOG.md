@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.5.0] - 2024-04-07
+
+### Added
+- Battery charge on scan node of items with a battery
+- Config entry for scrap counter speed
+- Scrap counter speed is now relative to the amount of scrap, no more waiting ages for the counter to update when there is a lot of scrap
+
+### Changed
+- Default scan speed is faster
+
+### Fixed
+- Some performance improvements
+
 ## [1.4.0] - 2024-04-06
 
 ### Added

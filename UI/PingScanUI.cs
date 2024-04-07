@@ -2,6 +2,7 @@
 using LethalMDK;
 using TMPro;
 using UnityEngine;
+using UnityMDK.Config;
 using UnityMDK.Injection;
 
 namespace ScanTweaks.UI;
@@ -9,7 +10,10 @@ namespace ScanTweaks.UI;
 [InjectToComponent(typeof(HUDManager))]
 public class PingScanUI : MonoBehaviour
 {
-    [SerializeField] private float _counterUpdateSpeed = 1500f;
+    [ConfigSection("PingScan")]
+    [ConfigDescription("The speed at which the scrap counter updates.")]
+    private static ConfigData<int> ScrapCounterUpdateSpeed = new(1000);
+    
     [SerializeField] private float _counterInterval = 0.03f;
     private float _nextCounterUpdate;
     
@@ -19,16 +23,35 @@ public class PingScanUI : MonoBehaviour
     private RectTransform _canvasTransform;
     private RectTransform _nodeContainer;
 
-    private Queue<RectTransform> _uiElementsPool = new();
+    private Queue<UIElement> _uiElementsPool = new();
 
-    private Dictionary<ScanNodeProperties, RectTransform> _currentScanNodes = new();
+    private Dictionary<ScanNodeProperties, UIElement> _currentScanNodes = new();
     
     private static readonly int AColorNumber = Animator.StringToHash("colorNumber");
     private static readonly int ADisplayBool = Animator.StringToHash("display");
+    private static readonly string DollarSign = "$";
 
     private int _currentScrapValue;
 
-    private readonly SortedList<float, List<RectTransform>> _sortedScanNodes = new();
+    private readonly SortedList<float, List<UIElement>> _sortedScanNodes = new();
+    private readonly List<ScanNodeProperties> _toDelete = new();
+
+    private struct UIElement
+    {
+        public RectTransform transform;
+        public TextMeshProUGUI mainText;
+        public TextMeshProUGUI subText;
+
+        public override int GetHashCode()
+        {
+            return transform.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return transform.Equals(obj);
+        }
+    }
 
     private void Awake()
     {
@@ -40,7 +63,7 @@ public class PingScanUI : MonoBehaviour
 
         for (int i = 1; i < _hudManager.scanElements.Length; i++)
         {
-            _uiElementsPool.Enqueue(_hudManager.scanElements[i]);
+            _uiElementsPool.Enqueue(GetUIElementFromRectTransform(_hudManager.scanElements[i]));
         }
     }
 
@@ -56,7 +79,7 @@ public class PingScanUI : MonoBehaviour
         PingScan.ScanNodeRemoved -= OnScanNodeRemoved;
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         UpdateNodeContainer();
         UpdateScanUIPositions();
@@ -76,42 +99,46 @@ public class PingScanUI : MonoBehaviour
 
         Camera cam = player.gameplayCamera;
 
-        List<ScanNodeProperties> toDelete = new();
-        var sortedScanNodes = _sortedScanNodes;
+        _toDelete.Clear();
         _sortedScanNodes.Clear();
 
         var canvasSize = _canvasTransform.sizeDelta;
 
-        foreach ((ScanNodeProperties scanNode, RectTransform rect) in _currentScanNodes)
+        foreach ((ScanNodeProperties scanNode, UIElement element) in _currentScanNodes)
         {
             if (!scanNode)
             {
-                toDelete.Add(scanNode);
+                _toDelete.Add(scanNode);
                 continue;
             }
+
+            element.mainText.text = scanNode.headerText;
+            element.subText.text = scanNode.subText;
 
             Vector3 scanNodePosition = scanNode.transform.position;
             float distance = Vector3.SqrMagnitude(scanNodePosition - cam.transform.position);
             
-            if (!sortedScanNodes.ContainsKey(distance)) sortedScanNodes.Add(distance, new List<RectTransform>());
+            if (!_sortedScanNodes.ContainsKey(distance)) _sortedScanNodes.Add(distance, new List<UIElement>());
             
-            sortedScanNodes[distance].Add(rect);
+            _sortedScanNodes[distance].Add(element);
 
             Vector3 pos = cam.WorldToViewportPoint(scanNodePosition);
             pos = ((Vector2)pos - Vector2.one * 0.5f) * canvasSize;
-            rect.localPosition = pos;
+            element.transform.localPosition = pos;
         }
 
-        foreach (var scanNode in toDelete)
+        foreach (var scanNode in _toDelete)
         {
             OnScanNodeRemoved(scanNode);
         }
 
-        foreach (var sortedScanNode in sortedScanNodes)
+        int index = 0;
+        foreach (var sortedScanNode in _sortedScanNodes.Reverse())
         {
             foreach (var uiNode in sortedScanNode.Value)
             {
-                uiNode.SetAsFirstSibling();
+                uiNode.transform.SetSiblingIndex(index);
+                index++;
             }
         }
     }
@@ -131,7 +158,12 @@ public class PingScanUI : MonoBehaviour
 
         if (_currentScrapValue < PingScan.PingedScrapValue)
         {
-            _currentScrapValue = Mathf.RoundToInt(Mathf.MoveTowards(_currentScrapValue, PingScan.PingedScrapValue, _counterUpdateSpeed * Time.deltaTime));
+            float speed = ScrapCounterUpdateSpeed;
+            int difference = Math.Abs(PingScan.PingedScrapValue - _currentScrapValue);
+            difference = Math.Max(100, difference);
+            speed *= difference * 0.01f;
+            
+            _currentScrapValue = Mathf.RoundToInt(Mathf.MoveTowards(_currentScrapValue, PingScan.PingedScrapValue, speed * Time.deltaTime));
             _hudManager.UIAudio.PlayOneShot(_hudManager.addToScrapTotalSFX);
         }
         else
@@ -139,7 +171,7 @@ public class PingScanUI : MonoBehaviour
             _currentScrapValue = PingScan.PingedScrapValue;
         }
 
-        _hudManager.totalValueText.text = $"${_currentScrapValue}";
+        _hudManager.totalValueText.text = DollarSign + _currentScrapValue;
 
         if (_currentScrapValue == 0)
         {
@@ -151,7 +183,20 @@ public class PingScanUI : MonoBehaviour
         }
     }
 
-    private RectTransform GetUIElement()
+    private UIElement GetUIElementFromRectTransform(RectTransform instance)
+    {
+        TextMeshProUGUI[] texts = instance.transform.GetComponentsInChildren<TextMeshProUGUI>(true);
+        UIElement newElement = new()
+        {
+            transform = instance,
+            mainText = texts[0],
+            subText = texts[1]
+        };
+
+        return newElement;
+    }
+
+    private UIElement GetFreeUIElement()
     {
         if (_uiElementsPool.Count > 0)
         {
@@ -160,24 +205,21 @@ public class PingScanUI : MonoBehaviour
         
         RectTransform instance = Instantiate(_hudManager.scanElements[0], _hudManager.scanElements[0].transform.parent);
         instance.SetAsFirstSibling();
-        return instance;
+        
+        return GetUIElementFromRectTransform(instance);
     }
 
     private void OnScanNodeAdded(ScanNodeProperties scanNode)
     {
         if (_currentScanNodes.ContainsKey(scanNode)) return;
         
-        RectTransform uiElement = GetUIElement();
-        uiElement.gameObject.SetActive(true);
+        UIElement uiElement = GetFreeUIElement();
+        uiElement.transform.gameObject.SetActive(true);
 
-        TextMeshProUGUI[] texts = uiElement.GetComponentsInChildren<TextMeshProUGUI>();
-        if (texts.Length == 2)
-        {
-            texts[0].text = scanNode.headerText;
-            texts[1].text = scanNode.subText;
-        }
+        uiElement.mainText.text = scanNode.headerText;
+        uiElement.subText.text = scanNode.subText;
         
-        uiElement.GetComponent<Animator>().SetInteger(AColorNumber, scanNode.nodeType);
+        uiElement.transform.GetComponent<Animator>().SetInteger(AColorNumber, scanNode.nodeType);
         
         _currentScanNodes.Add(scanNode, uiElement);
     }
@@ -186,9 +228,9 @@ public class PingScanUI : MonoBehaviour
     {
         if (!_currentScanNodes.ContainsKey(scanNode)) return;
 
-        RectTransform uiElement = _currentScanNodes[scanNode];
+        UIElement uiElement = _currentScanNodes[scanNode];
         
-        uiElement.gameObject.SetActive(false);
+        uiElement.transform.gameObject.SetActive(false);
 
         _currentScanNodes.Remove(scanNode);
         

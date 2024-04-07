@@ -8,7 +8,7 @@ Don't hesitate to DM me on discord - saradora - if you have any issues :).
 
 ## Features
 
-![](https://i.imgur.com/qIXTM41.gif)
+![](https://i.imgur.com/U3gxtxm.gif)
 
 **All features can be toggled in the config file**
 
