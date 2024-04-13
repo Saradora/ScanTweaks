@@ -202,14 +202,11 @@ public class PingScan : MonoBehaviour
                 end += Vector3.up * 0.1f;
         }
 
-        bool hit = Physics.Linecast(start, end, out RaycastHit hitInfo, layerMask, QueryTriggerInteraction.Ignore);
-
-        if (!hit) return false;
+        if (!Physics.Linecast(start, end, out RaycastHit hitInfo, layerMask, QueryTriggerInteraction.Ignore)) 
+            return false;
 
         if (hitInfo.collider.gameObject.CompareTag(Tags.InteractTrigger))
-        {
             return hitInfo.collider.GetComponent<AnimatedObjectTrigger>();
-        }
 
         return true;
     }
