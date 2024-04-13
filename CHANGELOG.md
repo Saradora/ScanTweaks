@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Config entry for whether door should block scan vision or not
 
 ### Fixed
-- Not being able to scan items on the company desk
+- Not being able to scan items on the company desk (auto fixed, was a compilation error?)
 
 ## [1.5.0] - 2024-04-07
 
