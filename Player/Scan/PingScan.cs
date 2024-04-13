@@ -208,8 +208,7 @@ public class PingScan : MonoBehaviour
 
         if (hitInfo.collider.gameObject.CompareTag(Tags.InteractTrigger))
         {
-            var hasHit = hitInfo.collider.GetComponent<AnimatedObjectTrigger>();
-            if (!hasHit) return false;
+            return hitInfo.collider.GetComponent<AnimatedObjectTrigger>();
         }
 
         return true;
