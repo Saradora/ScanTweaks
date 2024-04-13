@@ -4,6 +4,7 @@ using LethalMDK;
 using UnityEngine;
 using UnityMDK.Config;
 using UnityMDK.Injection;
+using UnityMDK.Logging;
 using UnityMDK.Reflection;
 
 namespace ScanTweaks;
@@ -18,6 +19,9 @@ public class PingScan : MonoBehaviour
     [ConfigDescription("The delay between each ping scan step. A larger value will make the scan take longer to reach great distances.")]
     private static readonly ConfigData<float> PingScanStepDuration = new(0.01f);
     
+    [ConfigDescription("Should dynamic objects (e.g. doors) block the ping scan")]
+    private static readonly ConfigData<bool> DynamicObjectsBlockRaycast = new(true);
+    
     // Parameters
     [SerializeField] private float _range = 80f;
     [SerializeField] private float _outOfFrustumPaddingHorizontal = 0.2f;
@@ -29,7 +33,8 @@ public class PingScan : MonoBehaviour
     private readonly List<int> _currentScannedValues = new();
     private readonly List<GrabbableObject> _currentScannedGrabbables = new();
     private readonly Collider[] _hitAlloc = new Collider[30];
-    private static readonly int _physicsMask = LayerMasks.Room | LayerMasks.InteractableObject;
+    private static readonly int _physicsMask = LayerMasks.Room;
+    private static readonly int _doorMask = LayerMasks.InteractableObject;
     
     // Public members
     public static int PingedScrapValue { get; private set; }
@@ -179,7 +184,11 @@ public class PingScan : MonoBehaviour
         Vector3 viewPosition = camera.WorldToViewportPoint(nodeCollider.bounds.center);
         if (PointOutOfViewport(viewPosition.x, paddingX) || PointOutOfViewport(viewPosition.y, paddingY) || viewPosition.z < 0) return false;
 
-        return !scanNode.requiresLineOfSight || !Linecast(camPos, nodeCollider.bounds.center, _physicsMask);
+        var mask = _physicsMask;
+        if (DynamicObjectsBlockRaycast)
+            mask |= _doorMask;
+        
+        return !scanNode.requiresLineOfSight || !Linecast(camPos, nodeCollider.bounds.center, mask);
     }
 
     private static bool Linecast(Vector3 start, Vector3 end, int layerMask)
@@ -199,7 +208,8 @@ public class PingScan : MonoBehaviour
 
         if (hitInfo.collider.gameObject.CompareTag(Tags.InteractTrigger))
         {
-            return hitInfo.collider.GetComponent<AnimatedObjectTrigger>();
+            var hasHit = hitInfo.collider.GetComponent<AnimatedObjectTrigger>();
+            if (!hasHit) return false;
         }
 
         return true;

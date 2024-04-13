@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.5.1] - 2024-04-12
+
+### Added
+- Config entry for whether door should block scan vision or not
+
+### Fixed
+- Not being able to scan items on the company desk
+
 ## [1.5.0] - 2024-04-07
 
 ### Added
