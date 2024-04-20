@@ -21,9 +21,9 @@ public class PingScan : MonoBehaviour
     
     [ConfigDescription("Should dynamic objects (e.g. doors) block the ping scan")]
     private static readonly ConfigData<bool> DynamicObjectsBlockRaycast = new(true);
+
+    private static readonly ConfigData<int> MaxScanRange = new(80);
     
-    // Parameters
-    [SerializeField] private float _range = 80f;
     [SerializeField] private float _outOfFrustumPaddingHorizontal = 0.2f;
     private float _outOfFrustumPaddingVertical => _outOfFrustumPaddingHorizontal * (Screen.width / (float)Screen.height);
 
@@ -117,11 +117,11 @@ public class PingScan : MonoBehaviour
         Vector3 screenPos = Vector3.one;
         Vector3 extents = Vector3.one;
 
-        const float stepLength = 0.5f;
+        float stepLength = 0.5f;
         float currentLength = 0f;
         float nextStep = Time.time;
 
-        while (currentLength < _range)
+        while (currentLength < MaxScanRange)
         {
             yield return null;
 
@@ -133,6 +133,11 @@ public class PingScan : MonoBehaviour
                 currentTestPos += direction * stepLength;
                 currentLength += stepLength;
                 nextStep += PingScanStepDuration;
+
+                stepLength += stepLength * 0.25f;
+                
+                Log.Print(stepLength);
+                Log.Warning(currentLength);
             }
         }
 

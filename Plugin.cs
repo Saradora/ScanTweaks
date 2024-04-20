@@ -21,6 +21,6 @@ public class PluginInitializer : BaseUnityPlugin
 public static class ScanTweaks
 {
     public const string ModGuid = "Saradora.ScanTweaks";
-    public const string ModVersion = "1.5.1";
+    public const string ModVersion = "2.0.0";
     public const string ModName = "Scan Tweaks";
 }

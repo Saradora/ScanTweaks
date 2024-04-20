@@ -35,6 +35,9 @@ public class BreakerBoxScanNode : MonoBehaviour
         {
             GameObject scanNodeObject = new("Scan Node") { layer = Layers.ScanNode };
 
+            BoxCollider collider = scanNodeObject.AddComponent<BoxCollider>();
+            collider.size = Vector3.one * 0.2f;
+
             _scanNode = scanNodeObject.AddComponent<ScanNodeProperties>();
             _scanNode.headerText = "Breaker Box";
             _scanNode.subText = "Flip the switches! Maybe it'll do something?";
@@ -43,9 +46,6 @@ public class BreakerBoxScanNode : MonoBehaviour
             _scanNode.creatureScanID = -1;
             _scanNode.nodeType = (int)ScanNodes.EType.Utility;
             _scanNode.requiresLineOfSight = true;
-
-            BoxCollider collider = scanNodeObject.AddComponent<BoxCollider>();
-            collider.size = Vector3.one * 0.2f;
         
             scanNodeObject.transform.SetParent(transform);
             scanNodeObject.transform.SetLocalPositionAndRotation(Offset, Quaternion.identity);
