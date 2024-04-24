@@ -1,6 +1,7 @@
 ﻿using LethalMDK;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityMDK.Injection;
 using UnityMDK.Logging;
@@ -17,23 +18,22 @@ public class ScanNodeManager : MonoBehaviour
     private NativeArray<RaycastHit> _hitsArray;
     private NativeArray<RaycastCommand> _raycastsArray;
 
-    private static bool _init;
-
     private static bool _isRunning;
     private static JobHandle _currentJob;
 
     private void Awake()
     {
-        if (_init)
-            return;
-
-        _init = true;
-        
         ResizeArrays();
     }
 
     private void OnDestroy()
     {
+        if (_isRunning)
+        {
+            _currentJob.Complete();
+            _isRunning = false;
+        }
+        
         if (_raycastsArray.IsCreated)
         {
             _raycastsArray.Dispose();
@@ -128,5 +128,18 @@ public class ScanNodeManager : MonoBehaviour
     public static void Remove(ScanNodeEntity scanNode)
     {
         _nodes.Remove(scanNode);
+    }
+
+    private struct PrepareRaycastJob : IJobParallelFor
+    {
+        public NativeArray<float3> Positions;
+        public NativeArray<float3> Directions;
+
+        public float3 CameraPosition;
+        
+        public void Execute(int index)
+        {
+            
+        }
     }
 }

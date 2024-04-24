@@ -185,7 +185,7 @@ public class PingScan : MonoBehaviour
 
         if (distanceToCam < scanNode.minRange) return false;
         if (distanceToCam > scanNode.maxRange) return false;
-            
+        
         Vector3 viewPosition = camera.WorldToViewportPoint(nodeCollider.bounds.center);
         if (PointOutOfViewport(viewPosition.x, paddingX) || PointOutOfViewport(viewPosition.y, paddingY) || viewPosition.z < 0) return false;
 
