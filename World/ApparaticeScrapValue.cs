@@ -2,6 +2,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityMDK.Config;
+using UnityMDK.Logging;
 
 namespace ScanTweaks.World;
 
@@ -21,6 +22,8 @@ public class ApparaticeScrapValue : MonoBehaviour
 
     private static bool IsServerOrHost => NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer;
 
+    public static readonly List<LungProp> PatchedApparatices = new();
+
     private void Awake()
     {
         _lungProp = GetComponent<LungProp>();
@@ -28,7 +31,7 @@ public class ApparaticeScrapValue : MonoBehaviour
 
     private IEnumerator Start()
     {
-        yield return new WaitForSeconds(11f);
+        yield return new WaitForSeconds(5f);
 
         if (!IsServerOrHost) yield break;
         
@@ -37,8 +40,8 @@ public class ApparaticeScrapValue : MonoBehaviour
         if (minValue > maxValue) (minValue, maxValue) = (maxValue, minValue);
         int value = (int)(RoundManager.Instance.AnomalyRandom.Next(minValue, maxValue) * RoundManager.Instance.scrapValueMultiplier);
         _lungProp.SetScrapValue(value);
-
-        NetworkObjectReference lungPropReference = _lungProp.NetworkObject;
-        RoundManager.Instance.SyncScrapValuesClientRpc(new []{lungPropReference}, new[]{value});
+        
+        PatchedApparatices.Add(_lungProp);
+        Log.Error($"Patched an apparatus");
     }
 }

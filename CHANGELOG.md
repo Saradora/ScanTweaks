@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+### Fixed
+- Apparatus patch screwing the total scrap count in the end of moon result panel.
+- Bodies creating a new scan node when they shouldn't.
+
 ## [1.5.1] - 2024-04-12
 
 ### Added

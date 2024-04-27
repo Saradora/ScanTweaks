@@ -3,7 +3,6 @@
 namespace ScanTweaks.World;
 
 [Initializer]
-[SceneConstructor]
 public class ApparatusScrapValueInjector : ComponentInjector<LungProp>
 {
     [Initializer]
