@@ -4,31 +4,42 @@ using UnityMDK.Injection;
 
 namespace ScanTweaks;
 
-[InjectToComponent(typeof(GrabbableObject))]
-public class ScanNodeCreator : MonoBehaviour
+[Initializer]
+public class ScanNodeCreator : ComponentInjector<GrabbableObject>
 {
     private static readonly string[] excludes = new[]
     {
         "sticky note",
     };
-    
-    private void Start()
+
+    [Initializer]
+    private static void Init()
     {
-        if (GetComponentInChildren<ScanNodeProperties>(true))
-            return;
+        SceneInjection.AddComponentInjector(new ScanNodeCreator(), true);
+    }
 
-        GrabbableObject item = GetComponent<GrabbableObject>();
+    protected override bool CanBeInjected(GrabbableObject component)
+    {
+        if (component.GetComponentInChildren<ScanNodeProperties>(true))
+            return false;
 
-        if (item is RagdollGrabbableObject)
-            return;
+        if (component is RagdollGrabbableObject)
+            return false;
 
         foreach (var exclude in excludes)
         {
-            if (item.itemProperties.itemName.Equals(exclude, StringComparison.InvariantCultureIgnoreCase))
-                return;
+            if (component.itemProperties.itemName.Equals(exclude, StringComparison.InvariantCultureIgnoreCase))
+                return false;
         }
 
-        bool isScrap = item.itemProperties.isScrap;
+        return true;
+    }
+
+    protected override void Inject(GrabbableObject component)
+    {
+        var transform = component.transform;
+
+        bool isScrap = component.itemProperties.isScrap;
         
         GameObject scanNode = new("Scan Node") { layer = Layers.ScanNode };
         
@@ -39,8 +50,8 @@ public class ScanNodeCreator : MonoBehaviour
         collider.size = Vector3.one * 0.2f;
 
         CustomScanNodeProperties properties = scanNode.AddComponent<CustomScanNodeProperties>();
-        properties.headerText = item.itemProperties.itemName;
-        properties.subText = isScrap ? $"Value: ${item.scrapValue}" : "???";
+        properties.headerText = component.itemProperties.itemName;
+        properties.subText = isScrap ? $"Value: ${component.scrapValue}" : "???";
         properties.minRange = 1;
         properties.maxRange = 13;
         properties.creatureScanID = -1;
