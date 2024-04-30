@@ -38,6 +38,8 @@ public class PingScanUI : MonoBehaviour
     private readonly List<ScannedObject> _scannedObjects = new();
     private readonly List<ScanNodeProperties> _toDelete = new();
 
+    private readonly ScannedObjectComparer _distanceComparer = new();
+
     private struct ScannedObject
     {
         public float distance;
@@ -50,7 +52,7 @@ public class PingScanUI : MonoBehaviour
         }
     }
 
-    private struct Comparer : IComparer<ScannedObject>
+    private class ScannedObjectComparer : IComparer<ScannedObject>
     {
         public int Compare(ScannedObject x, ScannedObject y)
         {
@@ -151,7 +153,7 @@ public class PingScanUI : MonoBehaviour
             pos = ((Vector2)pos - halfOne) * canvasSize;
             element.transform.localPosition = pos;
         }
-        _scannedObjects.Sort(new Comparer());
+        _scannedObjects.Sort(_distanceComparer);
 
         foreach (var scanNode in _toDelete)
         {
@@ -226,7 +228,7 @@ public class PingScanUI : MonoBehaviour
         }
         
         RectTransform instance = Instantiate(_hudManager.scanElements[0], _hudManager.scanElements[0].transform.parent);
-        instance.SetAsFirstSibling();
+        //instance.SetAsFirstSibling();
         
         return GetUIElementFromRectTransform(instance);
     }
