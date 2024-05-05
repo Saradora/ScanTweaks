@@ -1,6 +1,7 @@
 ﻿using LethalMDK;
 using UnityEngine;
 using UnityMDK.Injection;
+using UnityMDK.Logging;
 
 namespace ScanTweaks;
 
@@ -26,6 +27,10 @@ public class ScanNodeCreator : ComponentInjector<GrabbableObject>
         if (component is RagdollGrabbableObject)
             return false;
 
+        if (!component.itemProperties) return false;
+
+        if (string.IsNullOrEmpty(component.itemProperties.itemName)) return true;
+        
         foreach (var exclude in excludes)
         {
             if (component.itemProperties.itemName.Equals(exclude, StringComparison.InvariantCultureIgnoreCase))
