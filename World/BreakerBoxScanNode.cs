@@ -3,10 +3,26 @@ using LethalMDK.World;
 using UnityEngine;
 using UnityMDK.Config;
 using UnityMDK.Injection;
+using UnityMDK.Logging;
 
 namespace ScanTweaks.World;
 
-[InjectToComponent(typeof(BreakerBox))]
+[InjectToPrefab(Prefabs.PBreakerBox)]
+public class BreakerBoxPatcher : IPrefabInjector
+{
+    public void OnInject(GameObject obj)
+    {
+        BreakerBox breakerBox = obj.GetComponentInChildren<BreakerBox>();
+        if (breakerBox == null)
+        {
+            Log.Error($"Couldn't patch breaker box");
+            return;
+        }
+
+        breakerBox.gameObject.AddComponent<BreakerBoxScanNode>();
+    }
+}
+
 public class BreakerBoxScanNode : MonoBehaviour
 {
     [ConfigSection("BreakerBox")] 

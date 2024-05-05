@@ -3,7 +3,6 @@ using HarmonyLib;
 using ScanTweaks.World;
 using Unity.Netcode;
 using UnityEngine;
-using UnityMDK.Logging;
 
 namespace ScanTweaks.Patches;
 
@@ -29,8 +28,6 @@ public static class RoundManager_Patching
 
         List<NetworkObjectReference> spawnedList = spawnedScrap.ToList();
         List<int> values = scrapValues.ToList();
-        
-        Log.Warning($"Scrap count before patch: {spawnedList.Count}");
 
         foreach (var patchedApparatice in ApparaticeScrapValue.PatchedApparatices)
         {
@@ -42,8 +39,5 @@ public static class RoundManager_Patching
         }
         
         RoundManager.Instance.SyncScrapValuesClientRpc(spawnedList.ToArray(), values.ToArray());
-        
-        Log.Warning($"Scrap count after patch: {spawnedList.Count}");
-        Log.Error($"Patches scrap values");
     }
 }

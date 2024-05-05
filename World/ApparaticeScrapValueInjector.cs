@@ -1,31 +1,25 @@
-﻿using UnityMDK.Injection;
+﻿using LethalMDK;
+using UnityEngine;
+using UnityMDK.Injection;
+using UnityMDK.Logging;
 
 namespace ScanTweaks.World;
 
-[Initializer]
-public class ApparatusScrapValueInjector : ComponentInjector<LungProp>
+[InjectToPrefab(Prefabs.PLungApparatus)]
+public class ApparatusScrapValueInjector : IPrefabInjector
 {
-    [Initializer]
-    private static void Init()
+    public void OnInject(GameObject obj)
     {
-        if (!ApparaticeScrapValue.ApparaticeMakeRandomValue) return;
-        SceneInjection.AddComponentInjector(new ApparatusScrapValueInjector(), true);
-    }
-    
-    protected override bool CanBeInjected(LungProp component)
-    {
-        return IsLungPropValid(component);
-    }
+        if (!ApparaticeScrapValue.ApparaticeMakeRandomValue)
+            return;
 
-    protected override void Inject(LungProp component)
-    {
-        component.gameObject.AddComponent<ApparaticeScrapValue>();
-    }
+        LungProp apparatus = obj.GetComponentInChildren<LungProp>();
+        if (apparatus == null)
+        {
+            Log.Error($"Couldn't find apparatus on prefab.");
+            return;
+        }
 
-    private static bool IsLungPropValid(LungProp lungProp)
-    {
-        if (lungProp.itemProperties.itemName != "Apparatus") return false;
-        if (!lungProp.isLungDocked || !lungProp.isLungPowered) return false;
-        return lungProp.isInFactory;
+        apparatus.gameObject.AddComponent<ApparaticeScrapValue>();
     }
 }

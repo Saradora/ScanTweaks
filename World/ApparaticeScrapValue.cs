@@ -1,7 +1,9 @@
 ﻿using System.Collections;
+using LethalMDK;
 using Unity.Netcode;
 using UnityEngine;
 using UnityMDK.Config;
+using UnityMDK.Injection;
 using UnityMDK.Logging;
 
 namespace ScanTweaks.World;
@@ -28,10 +30,19 @@ public class ApparaticeScrapValue : MonoBehaviour
     {
         _lungProp = GetComponent<LungProp>();
     }
+    
+    private static bool IsLungPropValid(LungProp lungProp)
+    {
+        if (!lungProp.isLungDocked || !lungProp.isLungPowered) return false;
+        return lungProp.isInFactory;
+    }
 
     private IEnumerator Start()
     {
         yield return new WaitForSeconds(5f);
+        
+        if (!IsLungPropValid(_lungProp))
+            yield break;
 
         if (!IsServerOrHost) yield break;
         
@@ -42,6 +53,5 @@ public class ApparaticeScrapValue : MonoBehaviour
         _lungProp.SetScrapValue(value);
         
         PatchedApparatices.Add(_lungProp);
-        Log.Error($"Patched an apparatus");
     }
 }
