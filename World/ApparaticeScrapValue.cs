@@ -1,10 +1,7 @@
 ﻿using System.Collections;
-using LethalMDK;
 using Unity.Netcode;
 using UnityEngine;
 using UnityMDK.Config;
-using UnityMDK.Injection;
-using UnityMDK.Logging;
 
 namespace ScanTweaks.World;
 
@@ -21,8 +18,6 @@ public class ApparaticeScrapValue : MonoBehaviour
     private static readonly ConfigData<int> ApparaticeMaxValue = new(350);
 
     private LungProp _lungProp;
-
-    private static bool IsServerOrHost => NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer;
 
     public static readonly List<LungProp> PatchedApparatices = new();
 
@@ -44,7 +39,10 @@ public class ApparaticeScrapValue : MonoBehaviour
         if (!IsLungPropValid(_lungProp))
             yield break;
 
-        if (!IsServerOrHost) yield break;
+        if (!ApparaticeMakeRandomValue)
+            yield break;
+
+        if (!Player.IsServerOrHost) yield break;
         
         int minValue = ApparaticeMinValue;
         int maxValue = ApparaticeMaxValue;

@@ -23,7 +23,7 @@ internal static class HUDManager_Patching
     [HarmonyPatch("PingScan_performed"), HarmonyPostfix]
     private static void PingScan_performed_Postfix(HUDManager __instance)
     {
-        if (Player.LocalPlayer == null) return;
+        if (LethalMDK.Player.LocalPlayer == null) return;
         if (__instance.GetField<float>("playerPingingScan") < 0.3f) return;
         
         PingScan.TriggerPingScan();

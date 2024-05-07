@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.5.3] - 2024-05-06
+
+### Added
+- Fix for scrap in ship not being counted when joining as client
+
+### Changed
+- Improved Apparatus patching code for better compatibility
+
 ## [1.5.2] - 2024-04-30
 
 ### Fixed

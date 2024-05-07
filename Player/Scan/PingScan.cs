@@ -56,7 +56,7 @@ public class PingScan : MonoBehaviour
 
     private void Update()
     {
-        PlayerControllerB player = Player.LocalPlayer;
+        PlayerControllerB player = LethalMDK.Player.LocalPlayer;
         if (!player) return;
         if (player.inSpecialInteractAnimation && _currentScannedNodes.Count > 0)
         {
@@ -104,7 +104,7 @@ public class PingScan : MonoBehaviour
 
     private void OnPingScan()
     {
-        Camera camera = Player.LocalPlayer.gameplayCamera;
+        Camera camera = LethalMDK.Player.LocalPlayer.gameplayCamera;
         StartCoroutine(Pinging(camera));
     }
 

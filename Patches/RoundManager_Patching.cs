@@ -1,43 +1,42 @@
-﻿using System.Collections;
-using HarmonyLib;
+﻿using HarmonyLib;
 using ScanTweaks.World;
 using Unity.Netcode;
-using UnityEngine;
 
 namespace ScanTweaks.Patches;
 
 [HarmonyPatch(typeof(RoundManager))]
 public static class RoundManager_Patching
 {
-    [HarmonyPatch(nameof(waitForScrapToSpawnToSync)), HarmonyPrefix]
-    private static bool waitForScrapToSpawnToSync_Prefix(NetworkObjectReference[] spawnedScrap, int[] scrapValues, ref IEnumerator __result)
+    [HarmonyPatch("waitForScrapToSpawnToSync"), HarmonyPrefix]
+    private static void waitForScrapToSpawnToSync_Prefix()
     {
         ApparaticeScrapValue.PatchedApparatices.Clear();
-        
-        if (!ApparaticeScrapValue.ApparaticeMakeRandomValue)
-            return true;
-
-        __result = waitForScrapToSpawnToSync(spawnedScrap, scrapValues);
-
-        return false;
     }
 
-    private static IEnumerator waitForScrapToSpawnToSync(NetworkObjectReference[] spawnedScrap, int[] scrapValues)
+    [HarmonyPatch(nameof(RoundManager.SyncScrapValuesClientRpc)), HarmonyPrefix]
+    private static void SyncScrapValuesClientRpc_Prefix(ref NetworkObjectReference[] spawnedScrap, ref int[] allScrapValue)
     {
-        yield return new WaitForSeconds(11f);
-
+        if (!Player.IsServerOrHost)
+            return;
+        
         List<NetworkObjectReference> spawnedList = spawnedScrap.ToList();
-        List<int> values = scrapValues.ToList();
+        List<int> values = allScrapValue.ToList();
 
         foreach (var patchedApparatice in ApparaticeScrapValue.PatchedApparatices)
         {
             if (patchedApparatice == null)
                 continue;
+
+            NetworkObjectReference objectReference = patchedApparatice.NetworkObject;
             
-            spawnedList.Add(patchedApparatice.NetworkObject);
+            if (spawnedList.Contains(objectReference))
+                continue;
+            
+            spawnedList.Add(objectReference);
             values.Add(patchedApparatice.scrapValue);
         }
-        
-        RoundManager.Instance.SyncScrapValuesClientRpc(spawnedList.ToArray(), values.ToArray());
+
+        spawnedScrap = spawnedList.ToArray();
+        allScrapValue = values.ToArray();
     }
 }

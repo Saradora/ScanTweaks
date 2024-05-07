@@ -120,7 +120,7 @@ public class PingScanUI : MonoBehaviour
 
     private void UpdateScanNodes()
     {
-        PlayerControllerB player = Player.LocalPlayer;
+        PlayerControllerB player = LethalMDK.Player.LocalPlayer;
         if (!player) return;
 
         Camera cam = player.gameplayCamera;
