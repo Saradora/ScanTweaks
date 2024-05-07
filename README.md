@@ -16,6 +16,7 @@ Don't hesitate to DM me on discord - saradora - if you have any issues :).
 - Made the item radar icons disappear when the player gets eaten.
 - Added a scan node on the breaker box.
 - Added a scan node to every item that didn't previously have one.
+- Made the loot inside the ship synchronize when joining as client.
 
 ### Host only features
 These features will work if the host has the mod, the other clients do not need the mod
