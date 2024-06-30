@@ -8,10 +8,7 @@ namespace ScanTweaks;
 [Initializer]
 public class ScanNodeCreator : ComponentInjector<GrabbableObject>
 {
-    private static readonly string[] excludes = new[]
-    {
-        "sticky note",
-    };
+    private static readonly string[] excludes = { "sticky note" };
 
     [Initializer]
     private static void Init()

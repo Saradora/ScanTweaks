@@ -75,6 +75,9 @@ public class PingScanUI : MonoBehaviour
 
         public override bool Equals(object obj)
         {
+            if (obj is Transform trans)
+                return transform == trans;
+            
             return transform.Equals(obj);
         }
     }
@@ -129,7 +132,7 @@ public class PingScanUI : MonoBehaviour
         _toDelete.Clear();
         _scannedObjects.Clear();
 
-        var canvasSize = _canvasTransform.sizeDelta;
+        Vector2 canvasSize = _canvasTransform.sizeDelta;
 
         Vector2 halfOne = Vector2.one * 0.5f;
 
@@ -147,7 +150,7 @@ public class PingScanUI : MonoBehaviour
             Vector3 scanNodePosition = scanNode.transform.position;
             float distance = Vector3.SqrMagnitude(scanNodePosition - camPos);
             
-            _scannedObjects.Add(new(distance, element));
+            _scannedObjects.Add(new ScannedObject(distance, element));
 
             Vector3 pos = cam.WorldToViewportPoint(scanNodePosition);
             pos = ((Vector2)pos - halfOne) * canvasSize;

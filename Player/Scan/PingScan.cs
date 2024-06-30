@@ -146,7 +146,7 @@ public class PingScan : MonoBehaviour
 
         void DoPing()
         {
-            int hitCount = Physics.OverlapBoxNonAlloc(currentTestPos, extents, _hitAlloc, boxOrientation, LayerMasks.ScanNode, QueryTriggerInteraction.Ignore);
+            int hitCount = Physics.OverlapBoxNonAlloc(currentTestPos, extents, _hitAlloc, boxOrientation, LayerMasks.ScanNode, QueryTriggerInteraction.Collide);
 
             for (int hitIndex = 0; hitIndex < hitCount; hitIndex++)
             {
@@ -169,10 +169,8 @@ public class PingScan : MonoBehaviour
     {
         if (scanNode == null) return false;
         if (scanNode.enabled == false) return false;
-        if (scanNode is CustomScanNodeProperties prop)
-        {
-            if (!CustomScanNodeProperties.EnableScanNodeForTools) return false;
-        }
+        if (scanNode is CustomScanNodeProperties && !CustomScanNodeProperties.EnableScanNodeForTools)
+            return false;
         if (nodeCollider == null) return false;
         
         Vector3 camPos = camera.transform.position;

@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.6.0] - 2024-06-28
+
+### Changed
+- Allowed trigger colliders to be hit, hopefully improving compatibility with some mods
+
+### Fixed
+- Added a few different checks to avoid allocating each frame for tool nodes
+
 ## [1.5.3] - 2024-05-06
 
 ### Added
