@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using Unity.Netcode;
 using UnityEngine;
 using UnityMDK.Config;
 
@@ -11,10 +10,10 @@ public class ApparaticeScrapValue : MonoBehaviour
     [ConfigDescription("Make the apparatice have a random scrap value, also fixes the \"???\" on the scan node, Host-only")]
     public static ConfigData<bool> ApparaticeMakeRandomValue { get; } = new(true);
     
-    [ConfigDescription("Minimum possible scrap value of the apparatice. This value has a x0.4 multiplier in patch 47")]
+    [ConfigDescription("Minimum possible scrap value of the apparatice. This value has a x0.4 multiplier")]
     private static readonly ConfigData<int> ApparaticeMinValue = new(125); // patch 47 has a 0.4 multiplier on scraps
     
-    [ConfigDescription("Maximum possible scrap value of the apparatice. This value has a x0.4 multiplier in patch 47")]
+    [ConfigDescription("Maximum possible scrap value of the apparatice. This value has a x0.4 multiplier")]
     private static readonly ConfigData<int> ApparaticeMaxValue = new(350);
 
     private LungProp _lungProp;

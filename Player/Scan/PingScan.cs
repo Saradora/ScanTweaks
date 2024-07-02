@@ -200,7 +200,7 @@ public class PingScan : MonoBehaviour
                 end += Vector3.up * 0.1f;
         }
 
-        if (!Physics.Linecast(start, end, out RaycastHit hitInfo, layerMask, QueryTriggerInteraction.Ignore)) 
+        if (!Physics.Linecast(start, end, out RaycastHit hitInfo, layerMask, QueryTriggerInteraction.Collide)) 
             return false;
 
         if (hitInfo.collider.gameObject.CompareTag(Tags.InteractTrigger))
