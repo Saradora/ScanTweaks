@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 //
 
+## [1.6.1] - 2024-07-08
+
+### Fixed
+- Tools without a battery should be scannable again (shovels, etc..)
+
 ## [1.6.0] - 2024-06-28
 
 ### Changed

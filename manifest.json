@@ -1,7 +1,7 @@
 {
 	"name": "ScanTweaks",
 	"author": "Saradora",
-	"version_number": "1.6.0",
+	"version_number": "1.6.1",
 	"website_url": "https://github.com/Saradora/ScanTweaks",
 	"description": "A few tweaks to the ping scan and the terminal radar.",
 	"dependencies": [
