@@ -4,7 +4,6 @@ using LethalMDK;
 using UnityEngine;
 using UnityMDK.Config;
 using UnityMDK.Injection;
-using UnityMDK.Logging;
 using UnityMDK.Reflection;
 
 namespace ScanTweaks;
@@ -21,6 +20,9 @@ public class PingScan : MonoBehaviour
     
     [ConfigDescription("Should dynamic objects (e.g. doors) block the ping scan")]
     private static readonly ConfigData<bool> DynamicObjectsBlockRaycast = new(true);
+
+    [ConfigDescription("Allows scanning objects in the hands of the players")]
+    private static readonly ConfigData<bool> PlayerHeldItemsScannable = new(false);
     
     // Parameters
     [SerializeField] private float _range = 80f;
@@ -72,10 +74,13 @@ public class PingScan : MonoBehaviour
             Collider collider = _currentScannedColliders[scanIndex];
             GrabbableObject grabbableObject = _currentScannedGrabbables[scanIndex];
 
-            if (grabbableObject && grabbableObject.isHeld && !grabbableObject.isHeldByEnemy)
+            if (PlayerHeldItemsScannable == false)
             {
-                RemoveScanNodeAt(scanIndex);
-                continue;
+                if (grabbableObject && grabbableObject.isHeld && !grabbableObject.isHeldByEnemy)
+                {
+                    RemoveScanNodeAt(scanIndex);
+                    continue;
+                }
             }
             
             if (!IsNodeVisible(scanNode, collider, player.gameplayCamera, paddingX, paddingY)) 
@@ -225,9 +230,10 @@ public class PingScan : MonoBehaviour
         if (_currentScannedNodes.Contains(scanNodeProperties)) return;
 
         GrabbableObject grabbableObject = scanNodeProperties.GetComponentInParent<GrabbableObject>();
-        if (grabbableObject && grabbableObject.isHeld && !grabbableObject.isHeldByEnemy) return;
-
-        //Log.Print($"Scanned {scanNodeProperties.headerText}, type {scanNodeProperties.nodeType}");
+        if (PlayerHeldItemsScannable == false)
+        {
+            if (grabbableObject && grabbableObject.isHeld && !grabbableObject.isHeldByEnemy) return;
+        }
 
         Collider coll = scanNodeProperties.GetComponent<Collider>();
         coll.enabled = false;

@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-//
+## [1.7.0] - 2024-07-25
+
+### Added
+- Config toggle to allow player held items to be scanned
 
 ## [1.6.1] - 2024-07-08
 
