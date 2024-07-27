@@ -21,6 +21,9 @@
       <Reference Include="LethalMDK">
         <HintPath>libs\LethalMDK.dll</HintPath>
       </Reference>
+      <Reference Include="ReservedItemSlotCore">
+        <HintPath>libs\ReservedItemSlotCore.dll</HintPath>
+      </Reference>
       <Reference Include="Unity.Netcode.Runtime">
         <HintPath>libs\Unity.Netcode.Runtime.dll</HintPath>
       </Reference>

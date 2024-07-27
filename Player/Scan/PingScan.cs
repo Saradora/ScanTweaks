@@ -21,8 +21,15 @@ public class PingScan : MonoBehaviour
     [ConfigDescription("Should dynamic objects (e.g. doors) block the ping scan")]
     private static readonly ConfigData<bool> DynamicObjectsBlockRaycast = new(true);
 
-    [ConfigDescription("Allows scanning objects in the hands of the players")]
-    private static readonly ConfigData<bool> PlayerHeldItemsScannable = new(false);
+    [ConfigDescription("Defines how player held items should react to the scanner.\nNone: The scanner doesn't see the items\nEquipped: The scanner only sees equipped items\nAll: The scanner sees all items")]
+    private static readonly ConfigData<EHeldScanType> PlayerHeldItemsScannability = new(EHeldScanType.Equipped);
+
+    public enum EHeldScanType
+    {
+        None,
+        Equipped,
+        All
+    }
     
     // Parameters
     [SerializeField] private float _range = 80f;
@@ -37,6 +44,9 @@ public class PingScan : MonoBehaviour
     private readonly Collider[] _hitAlloc = new Collider[30];
     private static readonly int _physicsMask = LayerMasks.Room;
     private static readonly int _doorMask = LayerMasks.InteractableObject;
+    private Terminal _terminal;
+
+    private static IPocketedGrabbableComparer _pocketedGrabbableComparer = new DefaultPocketedGrabbableComparer();
     
     // Public members
     public static int PingedScrapValue { get; private set; }
@@ -56,6 +66,9 @@ public class PingScan : MonoBehaviour
         DoPing?.Invoke();
     }
 
+    public static void SetPocketedGrabbableComparer(IPocketedGrabbableComparer comparer) =>
+        _pocketedGrabbableComparer = comparer;
+
     private void Update()
     {
         PlayerControllerB player = LethalMDK.Player.LocalPlayer;
@@ -74,17 +87,42 @@ public class PingScan : MonoBehaviour
             Collider collider = _currentScannedColliders[scanIndex];
             GrabbableObject grabbableObject = _currentScannedGrabbables[scanIndex];
 
-            if (PlayerHeldItemsScannable == false)
+            if (!grabbableObject)
             {
-                if (grabbableObject && grabbableObject.isHeld && !grabbableObject.isHeldByEnemy)
-                {
-                    RemoveScanNodeAt(scanIndex);
-                    continue;
-                }
+                RemoveScanNodeAt(scanIndex);
+                continue;
+            }
+
+            if (!IsGrabbableScannable(grabbableObject))
+            {
+                RemoveScanNodeAt(scanIndex);
+                continue;
             }
             
             if (!IsNodeVisible(scanNode, collider, player.gameplayCamera, paddingX, paddingY)) 
                 RemoveScanNodeAt(scanIndex);
+        }
+    }
+
+    private static bool IsGrabbableScannable(GrabbableObject grabbableObject)
+    {
+        if (!grabbableObject.isHeld)
+            return true;
+
+        if (grabbableObject.isHeldByEnemy)
+            return true;
+
+        EHeldScanType scanType = PlayerHeldItemsScannability;
+        switch (scanType)
+        {
+            case EHeldScanType.None:
+                return false;
+            case EHeldScanType.Equipped:
+                return !grabbableObject.isPocketed || _pocketedGrabbableComparer.IsPocketedGrabbableScannable(grabbableObject);
+            case EHeldScanType.All:
+                return true;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -190,21 +228,20 @@ public class PingScan : MonoBehaviour
         var mask = _physicsMask;
         if (DynamicObjectsBlockRaycast)
             mask |= _doorMask;
+
+        if (!scanNode.requiresLineOfSight)
+            return true;
+
+        Bounds colliderBounds = nodeCollider.bounds;
+        Vector3 endpoint = colliderBounds.center;
+        float upPoint = colliderBounds.extents.y > 0 ? colliderBounds.max.y : colliderBounds.min.y;
+        endpoint.y += (upPoint - endpoint.y) * 0.5f;
         
-        return !scanNode.requiresLineOfSight || !Linecast(camPos, nodeCollider.bounds.center, mask);
+        return !Linecast(camPos, endpoint, mask);
     }
 
     private static bool Linecast(Vector3 start, Vector3 end, int layerMask)
     {
-        Vector3 line = end - start;
-        if (Math.Abs(line.y) > 0.1f)
-        {
-            if (line.y > 0)
-                end -= Vector3.up * 0.1f;
-            else
-                end += Vector3.up * 0.1f;
-        }
-
         if (!Physics.Linecast(start, end, out RaycastHit hitInfo, layerMask, QueryTriggerInteraction.Collide)) 
             return false;
 
@@ -214,10 +251,25 @@ public class PingScan : MonoBehaviour
         return true;
     }
 
+    private Terminal GetTerminal()
+    {
+        if (_terminal == null)
+        {
+            if (!HUDManager.Instance || !HUDManager.Instance.TryGetField("terminalScript", out Terminal terminal))
+                return null;
+
+            _terminal = terminal;
+        }
+
+        return _terminal;
+    }
+
     private void AttemptScanNewCreature(int creatureID)
     {
         if (creatureID < 0) return;
-        if (!HUDManager.Instance || !HUDManager.Instance.TryGetField("terminalScript", out Terminal terminal)) return;
+        Terminal terminal = GetTerminal();
+        if (terminal == null)
+            return;
         
         if (terminal.scannedEnemyIDs.Contains(creatureID)) return;
         
@@ -230,10 +282,12 @@ public class PingScan : MonoBehaviour
         if (_currentScannedNodes.Contains(scanNodeProperties)) return;
 
         GrabbableObject grabbableObject = scanNodeProperties.GetComponentInParent<GrabbableObject>();
-        if (PlayerHeldItemsScannable == false)
-        {
-            if (grabbableObject && grabbableObject.isHeld && !grabbableObject.isHeldByEnemy) return;
-        }
+        
+        if (!grabbableObject)
+            return;
+        
+        if (!IsGrabbableScannable(grabbableObject))
+            return;
 
         Collider coll = scanNodeProperties.GetComponent<Collider>();
         coll.enabled = false;

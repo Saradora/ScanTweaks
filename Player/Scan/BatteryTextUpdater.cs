@@ -11,6 +11,8 @@ public class BatteryTextUpdater : MonoBehaviour
     private static readonly string[] BatteryPercentMsg = { "Battery: ", "%" };
 
     private int _currentBattery = int.MaxValue;
+
+    private static readonly Dictionary<int, string> _batteryMessagesCache = new();
     
     private void Awake()
     {
@@ -36,6 +38,17 @@ public class BatteryTextUpdater : MonoBehaviour
 
         _currentBattery = currentBattery;
 
-        _scanNode.subText = string.Join(currentBattery.ToString(), BatteryPercentMsg);
+        _scanNode.subText = GetBatteryMessage(_currentBattery);
+    }
+
+    private static string GetBatteryMessage(int batteryAmount)
+    {
+        if (!_batteryMessagesCache.TryGetValue(batteryAmount, out var message))
+        {
+            message = string.Join(batteryAmount.ToString(), BatteryPercentMsg);
+            _batteryMessagesCache[batteryAmount] = message;
+        }
+
+        return message;
     }
 }

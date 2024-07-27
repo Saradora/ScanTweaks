@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.8.0] - 2024-07-27
+
+### Added
+- Config to toggle the distance sorting of the UI nodes which could impact performance with a lot of nodes
+
+### Changed
+- The config for held items is now an enum to toggle between Disabled/Only Equipped/All
+- Tweaked the line of sight raycast
+
 ## [1.7.0] - 2024-07-25
 
 ### Added

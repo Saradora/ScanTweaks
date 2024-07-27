@@ -15,6 +15,10 @@ public class PingScanUI : MonoBehaviour
     [ConfigSection("PingScan")]
     [ConfigDescription("The speed at which the scrap counter updates.")]
     private static ConfigData<int> ScrapCounterUpdateSpeed = new(1000);
+
+    [ConfigSection("UI")]
+    [ConfigDescription("Should the nodes be sorted by distance, enabling this can have an impact on performances when a lot of nodes are displayed")]
+    private static ConfigData<bool> SortNodesByDistance = new(true);
     
     [SerializeField] private float _counterInterval = 0.03f;
     private float _nextCounterUpdate;
@@ -25,7 +29,7 @@ public class PingScanUI : MonoBehaviour
     private RectTransform _canvasTransform;
     private RectTransform _nodeContainer;
 
-    private Queue<UIElement> _uiElementsPool = new();
+    private Stack<UIElement> _uiElementsPool = new();
 
     private Dictionary<ScanNodeProperties, UIElement> _currentScanNodes = new();
     
@@ -92,7 +96,7 @@ public class PingScanUI : MonoBehaviour
 
         for (int i = 1; i < _hudManager.scanElements.Length; i++)
         {
-            _uiElementsPool.Enqueue(GetUIElementFromRectTransform(_hudManager.scanElements[i]));
+            _uiElementsPool.Push(GetUIElementFromRectTransform(_hudManager.scanElements[i]));
         }
     }
 
@@ -156,12 +160,16 @@ public class PingScanUI : MonoBehaviour
             pos = ((Vector2)pos - halfOne) * canvasSize;
             element.transform.localPosition = pos;
         }
-        _scannedObjects.Sort(_distanceComparer);
 
         foreach (var scanNode in _toDelete)
         {
             OnScanNodeRemoved(scanNode);
         }
+
+        if (SortNodesByDistance == false)
+            return;
+        
+        _scannedObjects.Sort(_distanceComparer);
 
         int count = _scannedObjects.Count;
         for (int sortedIndex = 0; sortedIndex < count; sortedIndex++)
@@ -227,7 +235,7 @@ public class PingScanUI : MonoBehaviour
     {
         if (_uiElementsPool.Count > 0)
         {
-            return _uiElementsPool.Dequeue();
+            return _uiElementsPool.Pop();
         }
         
         RectTransform instance = Instantiate(_hudManager.scanElements[0], _hudManager.scanElements[0].transform.parent);
@@ -261,6 +269,6 @@ public class PingScanUI : MonoBehaviour
 
         _currentScanNodes.Remove(scanNode);
         
-        _uiElementsPool.Enqueue(uiElement);
+        _uiElementsPool.Push(uiElement);
     }
 }
