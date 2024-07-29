@@ -87,16 +87,13 @@ public class PingScan : MonoBehaviour
             Collider collider = _currentScannedColliders[scanIndex];
             GrabbableObject grabbableObject = _currentScannedGrabbables[scanIndex];
 
-            if (!grabbableObject)
+            if (grabbableObject)
             {
-                RemoveScanNodeAt(scanIndex);
-                continue;
-            }
-
-            if (!IsGrabbableScannable(grabbableObject))
-            {
-                RemoveScanNodeAt(scanIndex);
-                continue;
+                if (!IsGrabbableScannable(grabbableObject))
+                {
+                    RemoveScanNodeAt(scanIndex);
+                    continue;
+                }
             }
             
             if (!IsNodeVisible(scanNode, collider, player.gameplayCamera, paddingX, paddingY)) 
@@ -111,6 +108,9 @@ public class PingScan : MonoBehaviour
 
         if (grabbableObject.isHeldByEnemy)
             return true;
+
+        if (grabbableObject.playerHeldBy == LethalMDK.Player.LocalPlayer)
+            return false;
 
         EHeldScanType scanType = PlayerHeldItemsScannability;
         switch (scanType)
@@ -282,12 +282,12 @@ public class PingScan : MonoBehaviour
         if (_currentScannedNodes.Contains(scanNodeProperties)) return;
 
         GrabbableObject grabbableObject = scanNodeProperties.GetComponentInParent<GrabbableObject>();
-        
-        if (!grabbableObject)
-            return;
-        
-        if (!IsGrabbableScannable(grabbableObject))
-            return;
+
+        if (grabbableObject)
+        {
+            if (!IsGrabbableScannable(grabbableObject))
+                return;
+        }
 
         Collider coll = scanNodeProperties.GetComponent<Collider>();
         coll.enabled = false;
